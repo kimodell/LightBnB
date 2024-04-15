@@ -39,6 +39,7 @@ const getUserWithEmail = function(email) {
     })
     .catch((err) => {
       console.log(err.message);
+      return null;
     });
 };
 
@@ -62,6 +63,7 @@ const getUserWithId = function(id) {
     })
     .catch((err) => {
       console.log(err.message);
+      return null;
     });
 };
 
@@ -89,6 +91,7 @@ const addUser = function(user) {
     })
     .catch((err) => {
       console.log(err.message);
+      return null;
     });
 };
 
@@ -100,7 +103,25 @@ const addUser = function(user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  //return getAllProperties(null, 2);
+
+  return pool
+    .query(`
+    SELECT *
+    FROM reservations
+    JOIN users ON reservations.guest_id = users.id
+    JOIN properties ON reservations.property_id = properties.id
+    WHERE reservations.guest_id = $1
+    LIMIT $2`, [guest_id, limit])
+    .then((result) => {
+      //return list of reservations by guest_id
+      console.log(result.rows);
+      return result.rows;
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return null;
+    });
 };
 
 /// Properties
@@ -121,6 +142,7 @@ const getAllProperties = (options, limit = 10) => {
     })
     .catch((err) => {
       console.log(err.message);
+      return null;
     });
 };
 
