@@ -145,36 +145,29 @@ const getAllProperties = (options, limit = 10) => {
   LEFT JOIN property_reviews ON properties.id = property_id
   `;
 
-  //initialize variable to determine if a paramter has been added to queryParams
-  let hasConditions = false;
-
   //if city has been passed as a parameter, add WHERE clause for the city
   if (options.city) {
     queryParams.push(`%${options.city}%`);
     queryString += `WHERE city LIKE $${queryParams.length} `;
-    //set condition checker to true, as we have confirmed a condition is added
-    hasConditions = true;
   }
 
   //if user is signed in, only pass properties belonging to that user
   if (options.owner_id) {
+    queryParams.push(options.owner_id);
     //use conditional operator to determine if condition is already present in params, if so, use AND, else use WHERE
-    queryString += `${hasConditions ? ' AND' : 'WHERE'} owner_id = $${queryParams.length} `;
-    hasConditions = true;
+    queryString += `${queryParams.length > 1 ? ' AND' : 'WHERE'} owner_id = $${queryParams.length} `;
   }
 
   //if minumum cost per night is added as a peramter 
   if (options.minimum_price_per_night) {
     queryParams.push(parseInt(options.minimum_price_per_night, 10) * 100); //convert dollars to cents
-    queryString += `${hasConditions ? ' AND' : 'WHERE'} cost_per_night >= $${queryParams.length} `;
-    hasConditions = true;
+    queryString += `${queryParams.length > 1 ? ' AND' : 'WHERE'} cost_per_night >= $${queryParams.length} `;
   }
 
   //if maximum cost per night is added as a peramter 
   if (options.maximum_price_per_night) {
     queryParams.push(parseInt(options.maximum_price_per_night, 10) * 100);
-    queryString += `${hasConditions ? ' AND' : 'WHERE'} cost_per_night <= $${queryParams.length} `;
-    hasConditions = true;
+    queryString += `${queryParams.length > 1  ? ' AND' : 'WHERE'} cost_per_night <= $${queryParams.length} `;
   }
 
   queryString += `
@@ -183,7 +176,7 @@ const getAllProperties = (options, limit = 10) => {
   //only return properties above or equal to a minumum rating if rating specified 
   if (options.minimum_rating) {
     queryParams.push(parseInt(options.minimum_rating, 10));
-    queryString += `HAVING AVG(property_reviews.rating) >= $${queryParams.length} `;
+    queryString += ` HAVING AVG(property_reviews.rating) >= $${queryParams.length} `;
   }
 
   //add other queries that come after WHERE
