@@ -18,14 +18,6 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function(email) {
-  // let resolvedUser = null;
-  // for (const userId in users) {
-  //   const user = users[userId];
-  //   if (user && user.email.toLowerCase() === email.toLowerCase()) {
-  //     resolvedUser = user;
-  //   }
-  // }
-  // return Promise.resolve(resolvedUser);
 
   return pool
     .query(`SELECT * FROM users WHERE LOWER(email) = LOWER($1)`, [email])
@@ -49,7 +41,6 @@ const getUserWithEmail = function(email) {
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
-  //return Promise.resolve(users[id]);
 
   return pool
     .query(`SELECT * FROM users WHERE id = $1`, [id])
@@ -73,10 +64,6 @@ const getUserWithId = function(id) {
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function(user) {
-  // const userId = Object.keys(users).length + 1;
-  // user.id = userId;
-  // users[userId] = user;
-  // return Promise.resolve(user);
 
   //destructure user object for use in query
   const { name, email, password } = user;
@@ -103,7 +90,6 @@ const addUser = function(user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  //return getAllProperties(null, 2);
 
   return pool
     .query(`
@@ -206,11 +192,8 @@ const getAllProperties = (options, limit = 10) => {
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  // const propertyId = Object.keys(properties).length + 1;
-  // property.id = propertyId;
-  // properties[propertyId] = property;
-  // return Promise.resolve(property);
 
+  //destructure property object for use in query
   const {
     owner_id,
     title,
@@ -228,6 +211,7 @@ const addProperty = function(property) {
     number_of_bedrooms
   } = property;
 
+  //delcare array to hold parameters that may be avaiable to use in the query
   const queryParams = [
     owner_id,
     title,
@@ -245,6 +229,7 @@ const addProperty = function(property) {
     number_of_bedrooms
   ];
 
+  //store queryString as variable for ease of use
   const queryString = `
     INSERT INTO properties (
       owner_id,
@@ -269,7 +254,7 @@ const addProperty = function(property) {
   return pool
     .query(queryString, queryParams)
     .then((result) => {
-      //return newly added user property from database
+      //return newly added property from database
       if (result.rows.length) {
         return result.rows[0];
       }
