@@ -155,11 +155,12 @@ const getAllProperties = (options, limit = 10) => {
     queryParams.push(parseInt(options.maximum_price_per_night, 10) * 100);
     queryString += `${queryParams.length > 1 ? ' AND' : 'WHERE'} cost_per_night <= $${queryParams.length} `;
   }
-
+  
+  //query string GROUP BY query must come before HAVING
   queryString += `
   GROUP BY properties.id`;
 
-  //only return properties above or equal to a minumum rating if rating specified 
+  //only return properties above or equal to a minimum rating if rating specified 
   if (options.minimum_rating) {
     queryParams.push(parseInt(options.minimum_rating, 10));
     queryString += ` HAVING AVG(property_reviews.rating) >= $${queryParams.length} `;
@@ -211,7 +212,7 @@ const addProperty = function(property) {
     number_of_bedrooms
   } = property;
 
-  //delcare array to hold parameters that may be avaiable to use in the query
+  //declare array to hold parameters that may be avaiable to use in the query
   const queryParams = [
     owner_id,
     title,
